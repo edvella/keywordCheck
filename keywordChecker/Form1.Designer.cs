@@ -81,6 +81,8 @@
             // 
             // lblResult
             // 
+            this.lblResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.lblResult.Location = new System.Drawing.Point(12, 117);
             this.lblResult.Name = "lblResult";
             this.lblResult.Size = new System.Drawing.Size(268, 135);
@@ -88,17 +90,20 @@
             // 
             // brwPreview
             // 
+            this.brwPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.brwPreview.Location = new System.Drawing.Point(287, 13);
             this.brwPreview.MinimumSize = new System.Drawing.Size(20, 20);
             this.brwPreview.Name = "brwPreview";
-            this.brwPreview.Size = new System.Drawing.Size(331, 239);
+            this.brwPreview.Size = new System.Drawing.Size(636, 239);
             this.brwPreview.TabIndex = 6;
             // 
             // frmSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(630, 261);
+            this.ClientSize = new System.Drawing.Size(935, 261);
             this.Controls.Add(this.brwPreview);
             this.Controls.Add(this.lblResult);
             this.Controls.Add(this.btnCheck);
@@ -108,6 +113,7 @@
             this.Controls.Add(this.lblUrl);
             this.Name = "frmSettings";
             this.Text = "Keyword Checker";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.ResumeLayout(false);
             this.PerformLayout();
 
