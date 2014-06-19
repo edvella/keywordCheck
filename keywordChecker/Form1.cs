@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RobotsTxt;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -14,6 +15,8 @@ namespace keywordChecker
 {
     public partial class frmSettings : Form
     {
+        WebClient client;
+
         public frmSettings()
         {
             InitializeComponent();
@@ -21,32 +24,41 @@ namespace keywordChecker
 
         private void btnCheck_Click(object sender, EventArgs e)
         {
-            var client = new WebClient();
+            client = new WebClient();
             var url = txtUrl.Text;
             url = !string.IsNullOrEmpty(url) && Uri.IsWellFormedUriString(url, UriKind.Absolute) ?
                 url : "http://www.gametrailers.com";
             var keywords = txtKeywords.Text;
             keywords = !string.IsNullOrEmpty(keywords) ? keywords : "final fantasy";
-            var pageContent = client.DownloadString(url);
-            var keywordLocation = pageContent.IndexOf(keywords, StringComparison.OrdinalIgnoreCase);
 
-            StringBuilder sb = new StringBuilder();
-            if (keywordLocation >= 0)
+            if (CheckRobots(url))
             {
-                var pageIds = Regex.Matches(pageContent, @"id=""\s*?\S*?""");
-                string matchedId = closestId(keywordLocation, pageIds);
-                string idTag = matchedId.Substring(4, matchedId.Length - 5);
-                brwPreview.Navigate(url + "#" + idTag);
 
-                sb.AppendFormat("{0} are talking about {1} today.", url, keywords);
-                sb.Append("\n\nSnippet:\n" + pageContent.Substring(keywordLocation, 100));
-                sb.AppendFormat("\n\nClosest id: {0}", idTag);
+                var pageContent = client.DownloadString(url);
+                var keywordLocation = pageContent.IndexOf(keywords, StringComparison.InvariantCultureIgnoreCase);
+
+                StringBuilder sb = new StringBuilder();
+                if (keywordLocation >= 0)
+                {
+                    var pageIds = Regex.Matches(pageContent, @"id=""\s*?\S*?""");
+                    string matchedId = closestId(keywordLocation, pageIds);
+                    string idTag = matchedId.Substring(4, matchedId.Length - 5);
+                    brwPreview.Navigate(url + "#" + idTag);
+
+                    sb.AppendFormat("{0} are talking about {1} today.", url, keywords);
+                    sb.Append("\n\nSnippet:\n" + pageContent.Substring(keywordLocation, 100));
+                    sb.AppendFormat("\n\nClosest id: {0}", idTag);
+                }
+                else
+                {
+                    sb.Append("Keyword not found!");
+                }
+                lblResult.Text = sb.ToString();
             }
             else
             {
-                sb.Append("Keyword not found!");
+                lblResult.Text = "Blocked by robots.txt!";
             }
-            lblResult.Text = sb.ToString();
         }
 
         private string closestId(int keywordLocation, MatchCollection matchingIds)
@@ -71,6 +83,26 @@ namespace keywordChecker
                 }
             }
             return closestIdName;
+        }
+
+        /// <summary>
+        /// Checks if a url is allowed to be spidered by our bot.
+        /// </summary>
+        /// <param name="url">The url to check.</param>
+        /// <returns>True if allowed, false if not.</returns>
+        private bool CheckRobots(string url)
+        {
+            var robotsFileLocation = new Uri(url).GetLeftPart(UriPartial.Authority) + "/robots.txt";
+            try
+            {
+                var robotsFileContent = client.DownloadString(robotsFileLocation);
+                Robots robots = Robots.Load(robotsFileContent);
+                return robots.IsPathAllowed("keywordChecker", url);
+            }
+            catch
+            {
+                return true;
+            }
         }
     }
 }
